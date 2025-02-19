@@ -5,163 +5,139 @@ import {
   View, 
   Text, 
   TouchableOpacity, 
-  Dimensions, 
-  Animated 
+  Dimensions,
+  Animated,
+  Platform
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
 const Home = ({ navigation }) => {
   const [scrollY] = useState(new Animated.Value(0));
-
-  // Animation values for the floating orbs
-  const floatAnim1 = new Animated.Value(0);
-  const floatAnim2 = new Animated.Value(0);
-  const floatAnim3 = new Animated.Value(0);
+  const [floatAnims] = useState({
+    orb1: new Animated.Value(0),
+    orb2: new Animated.Value(0),
+    orb3: new Animated.Value(0),
+    orb4: new Animated.Value(0)
+  });
 
   useEffect(() => {
-    // Create floating animations
-    const startFloatingAnimation = () => {
-      Animated.parallel([
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(floatAnim1, {
-              toValue: 1,
-              duration: 4000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(floatAnim1, {
-              toValue: 0,
-              duration: 4000,
-              useNativeDriver: true,
-            }),
-          ])
-        ),
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(floatAnim2, {
-              toValue: 1,
-              duration: 5000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(floatAnim2, {
-              toValue: 0,
-              duration: 5000,
-              useNativeDriver: true,
-            }),
-          ])
-        ),
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(floatAnim3, {
-              toValue: 1,
-              duration: 6000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(floatAnim3, {
-              toValue: 0,
-              duration: 6000,
-              useNativeDriver: true,
-            }),
-          ])
-        ),
-      ]).start();
+    const createFloatingAnimation = (anim, duration, delay) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, {
+            toValue: 1,
+            duration,
+            delay,
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, {
+            toValue: 0,
+            duration,
+            delay: 0,
+            useNativeDriver: true,
+          }),
+        ])
+      );
     };
 
-    startFloatingAnimation();
+    Animated.parallel([
+      createFloatingAnimation(floatAnims.orb1, 4000, 0),
+      createFloatingAnimation(floatAnims.orb2, 5000, 1000),
+      createFloatingAnimation(floatAnims.orb3, 6000, 500),
+      createFloatingAnimation(floatAnims.orb4, 7000, 1500),
+    ]).start();
   }, []);
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
 
   const features = [
     {
       title: "AI Resume Tailoring",
-      description: "Get personalized resume optimization using advanced AI to match your profile with dream opportunities",
-      backgroundColor: '#059669'
+      description: "Get personalized resume optimization using advanced AI",
+      backgroundColor: '#059669',
+      gradient: ['#059669', '#047857']
     },
     {
       title: "Mentor Connect",
-      description: "Connect with industry experts who can guide your career journey and provide valuable insights",
-      backgroundColor: '#10b981'
+      description: "Connect with industry experts who can guide your career journey",
+      backgroundColor: '#10b981',
+      gradient: ['#10b981', '#059669']
     },
     {
       title: "1:1 Mentoring Sessions",
-      description: "Schedule private mentoring sessions to discuss your career goals and challenges",
-      backgroundColor: '#34d399'
+      description: "Schedule private mentoring sessions to discuss your career goals",
+      backgroundColor: '#34d399',
+      gradient: ['#34d399', '#10b981']
     },
     {
       title: "Anonymous Forums",
-      description: "Engage in open discussions about career challenges and opportunities with privacy",
-      backgroundColor: '#059669'
+      description: "Engage in open discussions about career challenges with privacy",
+      backgroundColor: '#059669',
+      gradient: ['#059669', '#047857']
     },
     {
       title: "Smart Dashboards",
-      description: "Specialized dashboards for mentors, employers, admins, and investors to manage their experience",
-      backgroundColor: '#10b981'
+      description: "Specialized dashboards for mentors and employers",
+      backgroundColor: '#10b981',
+      gradient: ['#10b981', '#059669']
     },
     {
       title: "Mentor Chat",
-      description: "Real-time messaging system to stay connected with your mentors",
-      backgroundColor: '#34d399'
-    },
-    {
-      title: "Startup Showcase",
-      description: "Platform for startups to present their ideas and connect with potential investors",
-      backgroundColor: '#059669'
-    },
-    {
-      title: "Startup Investment",
-      description: "Investment opportunities for backing promising startups and innovations",
-      backgroundColor: '#10b981'
-    },
-    {
-      title: "Team Building",
-      description: "Find the perfect teammates for your startup through our matching system",
-      backgroundColor: '#34d399'
+      description: "Real-time messaging system to stay connected with mentors",
+      backgroundColor: '#34d399',
+      gradient: ['#34d399', '#10b981']
     }
   ];
 
   const FeatureCard = ({ title, description, backgroundColor }) => (
     <TouchableOpacity 
-      style={[styles.card, { transform: [{ scale: 1 }] }]}
-      onPress={() => navigation.navigate('Feature', { title })}
       activeOpacity={0.9}
+      onPress={() => navigation.navigate('Feature', { title })}
     >
-      <View style={[styles.iconContainer, { backgroundColor }]}>
-        <Text style={styles.iconText}>{title[0]}</Text>
+      <View style={styles.card}>
+        <View style={[styles.iconContainer, { backgroundColor }]}>
+          <Text style={styles.iconText}>{title[0]}</Text>
+        </View>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardDescription}>{description}</Text>
       </View>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardDescription}>{description}</Text>
     </TouchableOpacity>
+  );
+
+  const FloatingOrb = ({ style, anim }) => (
+    <Animated.View
+      style={[
+        styles.orb,
+        style,
+        {
+          transform: [{
+            translateY: anim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 20]
+            })
+          }]
+        }
+      ]}
+    />
   );
 
   return (
     <View style={styles.container}>
-      {/* Animated Background Orbs */}
-      <Animated.View style={[styles.orb1, {
-        transform: [{
-          translateY: floatAnim1.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 20]
-          })
-        }]
-      }]} />
-      <Animated.View style={[styles.orb2, {
-        transform: [{
-          translateY: floatAnim2.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, -20]
-          })
-        }]
-      }]} />
-      <Animated.View style={[styles.orb3, {
-        transform: [{
-          translateY: floatAnim3.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 15]
-          })
-        }]
-      }]} />
+      {/* Animated Header Background */}
+      <Animated.View style={[styles.headerBackground, { opacity: headerOpacity }]} />
+      
+      {/* Floating Orbs */}
+      <FloatingOrb style={styles.orb1} anim={floatAnims.orb1} />
+      <FloatingOrb style={styles.orb2} anim={floatAnims.orb2} />
+      <FloatingOrb style={styles.orb3} anim={floatAnims.orb3} />
+      <FloatingOrb style={styles.orb4} anim={floatAnims.orb4} />
 
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -169,31 +145,26 @@ const Home = ({ navigation }) => {
         )}
         scrollEventThrottle={16}
       >
-        {/* Hero Section */}
         <View style={styles.hero}>
-          <Text style={styles.heroTitle}>Elevate Your Career Path</Text>
+          <Text style={styles.heroTitle}>
+            Elevate Your{'\n'}
+            <Text style={styles.heroTitleHighlight}>Career Path</Text>
+          </Text>
           <Text style={styles.heroSubtitle}>
-            Connect with mentors, find opportunities, and build your future with AI-powered career guidance
+            Connect with mentors, find opportunities, and build your future with AI-powered guidance
           </Text>
           
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.primaryButton}
-              onPress={() => navigation.navigate('Jobs')}
-            >
+            <TouchableOpacity style={styles.primaryButton}>
               <Text style={styles.buttonText}>Get Started</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity 
-              style={styles.secondaryButton}
-              onPress={() => navigation.navigate('Mentor')}
-            >
+            <TouchableOpacity style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Find a Mentor</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Features Section */}
         <View style={styles.featuresSection}>
           <Text style={styles.sectionTitle}>Our Features</Text>
           <View style={styles.featuresGrid}>
@@ -203,17 +174,13 @@ const Home = ({ navigation }) => {
           </View>
         </View>
 
-        {/* CTA Section */}
         <View style={styles.ctaSection}>
           <Text style={styles.ctaTitle}>Ready to Transform Your Career?</Text>
           <Text style={styles.ctaSubtitle}>
-            Join our community of mentors, startups, and professionals shaping the future
+            Join our community of mentors and professionals
           </Text>
-          <TouchableOpacity 
-            style={styles.ctaButton}
-            onPress={() => navigation.navigate('Signup')}
-          >
-            <Text style={styles.buttonText}>Join Now</Text>
+          <TouchableOpacity style={styles.ctaButton}>
+            <Text style={styles.ctaButtonText}>Join Now</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -224,127 +191,149 @@ const Home = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111827',
+    backgroundColor: '#0B1121',
+  },
+  headerBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    backgroundColor: '#0B1121',
+    zIndex: 1,
   },
   scrollView: {
     flex: 1,
   },
-  orb1: {
+  orb: {
     position: 'absolute',
-    width: 200,
-    height: 200,
+    borderRadius: 999,
+    opacity: 0.4,
+    filter: 'blur(50px)',
+  },
+  orb1: {
+    width: 300,
+    height: 300,
     backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderRadius: 100,
-    top: -40,
-    left: -40,
-    opacity: 0.6,
-    filter : 'blur(50px)'
+    top: -100,
+    left: -100,
   },
   orb2: {
-    position: 'absolute',
     width: 250,
     height: 250,
     backgroundColor: 'rgba(52, 211, 153, 0.2)',
-    borderRadius: 125,
-    top: height / 4,
+    top: height * 0.3,
     right: -50,
-    opacity: 0.6,
-    filter : 'blur(50px)'
   },
   orb3: {
-    position: 'absolute',
+    width: 200,
+    height: 200,
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    bottom: height * 0.2,
+    left: -50,
+  },
+  orb4: {
     width: 180,
     height: 180,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderRadius: 90,
-    bottom: 40,
-    left: width / 3,
-    opacity: 0.6,
-    filter : 'blur(50px)'
+    backgroundColor: 'rgba(52, 211, 153, 0.15)',
+    bottom: -50,
+    right: -30,
   },
   hero: {
-    padding: 20,
-    alignItems: 'center',
-    marginTop: 60,
+    padding: 24,
+    paddingTop: Platform.OS === 'ios' ? 100 : 80,
     marginBottom: 40,
   },
   heroTitle: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: 44,
+    fontWeight: '800',
     color: '#ffffff',
-    textAlign: 'center',
     marginBottom: 16,
+    lineHeight: 52,
+  },
+  heroTitleHighlight: {
+    color: '#10b981',
   },
   heroSubtitle: {
     fontSize: 18,
     color: '#9ca3af',
-    textAlign: 'center',
+    lineHeight: 28,
     marginBottom: 32,
-    paddingHorizontal: 20,
+    maxWidth: '90%',
   },
   buttonContainer: {
-    width: '100%',
     gap: 16,
   },
   primaryButton: {
     backgroundColor: '#059669',
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 16,
     alignItems: 'center',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   secondaryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    padding: 18,
+    borderRadius: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.2)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
   },
   secondaryButtonText: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
   },
   featuresSection: {
-    padding: 20,
+    padding: 24,
   },
   sectionTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#ffffff',
-    textAlign: 'center',
     marginBottom: 24,
   },
   featuresGrid: {
-    gap: 16,
+    gap: 20,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.07)',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 52,
+    height: 52,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   iconText: {
     color: '#ffffff',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   cardTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#ffffff',
     marginBottom: 8,
   },
@@ -354,32 +343,41 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   ctaSection: {
-    margin: 20,
-    padding: 24,
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    borderRadius: 16,
-    alignItems: 'center',
+    margin: 24,
+    padding: 32,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
   ctaTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#ffffff',
     textAlign: 'center',
     marginBottom: 12,
   },
   ctaSubtitle: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#9ca3af',
     textAlign: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 20,
+    marginBottom: 32,
   },
   ctaButton: {
     backgroundColor: '#059669',
-    padding: 16,
-    borderRadius: 12,
-    width: '100%',
+    padding: 18,
+    borderRadius: 16,
     alignItems: 'center',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  ctaButtonText: {
+    color: '#ffffff',
+    fontSize: 17,
+    fontWeight: '600',
   },
 });
 
