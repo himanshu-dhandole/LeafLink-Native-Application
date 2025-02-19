@@ -53,7 +53,7 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="rocket" size={30} color="#fff" />
+            <Icon name="home" size={25} color="#fff" />
           ),
         }}
       />
@@ -63,7 +63,7 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Jobs',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="rocket" size={30} color="#fff" />
+            <Icon name="briefcase" size={25} color="#fff" />
           ),
         }}
       />
@@ -73,7 +73,7 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Mentor',
           tabBarIcon: ({ color, size }) => (
-              <Icon name="rocket" size={30} color="#fff" />
+              <Icon name="users" size={25} color="#fff" />
           ),
         }}
       />
@@ -83,7 +83,7 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="rocket" size={30} color="#fff" />
+            <Icon name="user" size={25} color="#fff" />
           ),
         }}
       />
