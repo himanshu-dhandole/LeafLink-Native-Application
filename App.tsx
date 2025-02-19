@@ -1,13 +1,14 @@
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {NavigationContainer} from '@react-navigation/native';
-import {Image, StyleSheet, Text, TouchableOpacity} from 'react-native';
-import {enableScreens} from 'react-native-screens';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { enableScreens } from 'react-native-screens';
+import Icon from 'react-native-vector-icons/FontAwesome'
 import Home from './components/Home';
 import Profile from './components/Profile';
-import Search from './components/Search';
 import Jobs from './components/Jobs';
 import Mentor from './components/Mentor';
+
 enableScreens();
 
 const Tab = createBottomTabNavigator();
@@ -15,7 +16,7 @@ const Tab = createBottomTabNavigator();
 const TabNavigator = () => {
   return (
     <Tab.Navigator
-      screenOptions={({navigation}) => ({
+      screenOptions={({ navigation }) => ({
         headerStyle: {
           backgroundColor: '#111820',
         },
@@ -44,14 +45,15 @@ const TabNavigator = () => {
         },
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: '#888888',
-      })}>
+      })}
+    >
       <Tab.Screen
         name="Home"
         component={Home}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({color, size}) => (
-            <Text style={{fontSize: 15, color}}>🏠</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="rocket" size={30} color="#fff" />
           ),
         }}
       />
@@ -60,8 +62,8 @@ const TabNavigator = () => {
         component={Jobs}
         options={{
           tabBarLabel: 'Jobs',
-          tabBarIcon: ({color, size}) => (
-            <Text style={{fontSize: 15, color}}>🤵🏼</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="rocket" size={30} color="#fff" />
           ),
         }}
       />
@@ -70,8 +72,8 @@ const TabNavigator = () => {
         component={Mentor}
         options={{
           tabBarLabel: 'Mentor',
-          tabBarIcon: ({color, size}) => (
-            <Text style={{fontSize: 15, color}}>👨🏼‍🏫</Text>
+          tabBarIcon: ({ color, size }) => (
+              <Icon name="rocket" size={30} color="#fff" />
           ),
         }}
       />
@@ -80,8 +82,8 @@ const TabNavigator = () => {
         component={Profile}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({color, size}) => (
-            <Text style={{fontSize: 15, color}}>👤</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="rocket" size={30} color="#fff" />
           ),
         }}
       />

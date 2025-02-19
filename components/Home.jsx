@@ -9,6 +9,7 @@ import {
   Animated,
   Platform
 } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 
 const { width, height } = Dimensions.get('window');
 
@@ -49,12 +50,7 @@ const Home = ({ navigation }) => {
     ]).start();
   }, []);
 
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
+ 
   const features = [
     {
       title: "AI Resume Tailoring",
@@ -69,45 +65,45 @@ const Home = ({ navigation }) => {
       gradient: ['#10b981', '#059669']
     },
     {
-      title: "1:1 Mentoring Sessions",
-      description: "Schedule private mentoring sessions to discuss your career goals",
-      backgroundColor: '#34d399',
-      gradient: ['#34d399', '#10b981']
-    },
-    {
-      title: "Anonymous Forums",
-      description: "Engage in open discussions about career challenges with privacy",
+      title: "AI Resume Tailoring",
+      description: "Get personalized resume optimization using advanced AI",
       backgroundColor: '#059669',
       gradient: ['#059669', '#047857']
     },
     {
-      title: "Smart Dashboards",
-      description: "Specialized dashboards for mentors and employers",
+      title: "Mentor Connect",
+      description: "Connect with industry experts who can guide your career journey",
       backgroundColor: '#10b981',
       gradient: ['#10b981', '#059669']
     },
-    {
-      title: "Mentor Chat",
-      description: "Real-time messaging system to stay connected with mentors",
-      backgroundColor: '#34d399',
-      gradient: ['#34d399', '#10b981']
-    }
+    
+    
   ];
 
-  const FeatureCard = ({ title, description, backgroundColor }) => (
-    <TouchableOpacity 
-      activeOpacity={0.9}
-      onPress={() => navigation.navigate('Feature', { title })}
-    >
-      <View style={styles.card}>
-        <View style={[styles.iconContainer, { backgroundColor }]}>
-          <Text style={styles.iconText}>{title[0]}</Text>
-        </View>
-        <Text style={styles.cardTitle}>{title}</Text>
-        <Text style={styles.cardDescription}>{description}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const FeatureCard = ({ title, description, gradient }) => {
+    const CardContainer = Platform.OS === 'ios' ? BlurView : View;
+    const cardProps = Platform.OS === 'ios' ? {
+      blurType: "dark",
+      blurAmount: 20,
+    } : {};
+
+    return (
+      <TouchableOpacity 
+        activeOpacity={0.9}
+        onPress={() => navigation.navigate('Feature', { title })}
+      >
+        <CardContainer style={styles.card} {...cardProps}>
+          <View style={[styles.cardContent, { backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(255, 255, 255, 0.07)' }]}>
+            <View style={[styles.iconContainer, { backgroundColor: gradient[0] }]}>
+              <Text style={styles.iconText}>{title[0]}</Text>
+            </View>
+            <Text style={styles.cardTitle}>{title}</Text>
+            <Text style={styles.cardDescription}>{description}</Text>
+          </View>
+        </CardContainer>
+      </TouchableOpacity>
+    );
+  };
 
   const FloatingOrb = ({ style, anim }) => (
     <Animated.View
@@ -128,8 +124,8 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Animated Header Background */}
-      <Animated.View style={[styles.headerBackground, { opacity: headerOpacity }]} />
+  
+      
       
       {/* Floating Orbs */}
       <FloatingOrb style={styles.orb1} anim={floatAnims.orb1} />
@@ -193,15 +189,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0B1121',
   },
-  headerBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 100,
-    backgroundColor: '#0B1121',
-    zIndex: 1,
-  },
+  
   scrollView: {
     flex: 1,
   },
@@ -209,7 +197,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 999,
     opacity: 0.4,
-    filter: 'blur(50px)',
+    filter: 'blur(30px)',
   },
   orb1: {
     width: 300,
@@ -306,12 +294,12 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.07)',
     borderRadius: 20,
-    padding: 24,
     marginBottom: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    overflow: 'hidden',
+  },
+  cardContent: {
+    padding: 24,
   },
   iconContainer: {
     width: 52,
