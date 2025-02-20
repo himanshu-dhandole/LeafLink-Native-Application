@@ -8,6 +8,7 @@ import Home from './components/Home';
 import Profile from './components/Profile';
 import Jobs from './components/Jobs';
 import Mentor from './components/Mentor';
+import Chat from './components/Chat';
 
 enableScreens();
 
@@ -53,7 +54,7 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="home" size={25} color="#fff" />
+            <Icon name="home" size={18} color="#fff" />
           ),
         }}
       />
@@ -63,7 +64,7 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Jobs',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="briefcase" size={25} color="#fff" />
+            <Icon name="briefcase" size={18} color="#fff" />
           ),
         }}
       />
@@ -73,17 +74,27 @@ const TabNavigator = () => {
         options={{
           tabBarLabel: 'Mentor',
           tabBarIcon: ({ color, size }) => (
-              <Icon name="users" size={25} color="#fff" />
+              <Icon name="users" size={18} color="#fff" />
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Profile"
         component={Profile}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="user" size={25} color="#fff" />
+            <Icon name="user" size={18} color="#fff" />
+          ),
+        }}
+      /> */}
+      <Tab.Screen
+        name="Chat"
+        component={Chat}
+        options={{
+          tabBarLabel: 'Chat',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="home" size={18} color="#fff" />
           ),
         }}
       />
