@@ -1,25 +1,83 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { enableScreens } from 'react-native-screens';
-import Icon from 'react-native-vector-icons/FontAwesome'
+import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// Components
 import Home from './components/Home';
 import Profile from './components/Profile';
 import Jobs from './components/Jobs';
 import Mentor from './components/Mentor';
 import Chat from './components/Chat';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
+
+// Type definitions
+type RootStackParamList = {
+  Auth: undefined;
+  Main: undefined;
+};
+
+type AuthStackParamList = {
+  Login: undefined;
+  Signup: undefined;
+};
+
+type TabParamList = {
+  Home: undefined;
+  Jobs: undefined;
+  Mentor: undefined;
+  Profile: undefined;
+  Chat: undefined;
+};
 
 enableScreens();
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
+const Stack = createNativeStackNavigator<AuthStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
+// Handle user logout
+const handleLogout = async (navigation: any) => {
+  try {
+    await AsyncStorage.multiRemove(['userToken', 'userData']);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Auth' }],
+    });
+  } catch (error) {
+    console.error('Error logging out:', error);
+  }
+};
+
+// Auth Stack Navigator
+const AuthStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: '#111820' },
+        animation: 'fade',
+      }}>
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Signup" component={Signup} />
+    </Stack.Navigator>
+  );
+};
+
+// Tab Navigator
 const TabNavigator = () => {
   return (
     <Tab.Navigator
-      screenOptions={({ navigation }) => ({
+      screenOptions={({ navigation, route }) => ({
         headerStyle: {
           backgroundColor: '#111820',
+          elevation: 0, // Remove shadow on Android
+          shadowOpacity: 0, // Remove shadow on iOS
         },
         headerTintColor: '#FFFFFF',
         headerTitleStyle: {
@@ -27,34 +85,34 @@ const TabNavigator = () => {
           fontSize: 18,
         },
         headerRight: () => (
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Image
-              source={{
-                uri: 'https://static.vecteezy.com/system/resources/previews/036/594/092/original/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg',
-              }}
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 100,
-                marginRight: 25,
-              }}
-            />
+          <TouchableOpacity 
+            onPress={() => handleLogout(navigation)}
+            style={styles.headerButton}
+          >
+            <Icon name="sign-out" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         ),
         tabBarStyle: {
           backgroundColor: '#111820',
+          borderTopColor: '#2A2A2A',
+          elevation: 0,
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
         },
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: '#888888',
-      })}
-    >
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginTop: 2,
+        },
+      })}>
       <Tab.Screen
         name="Home"
         component={Home}
         options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" size={18} color="#fff" />
+          tabBarIcon: ({ color }) => (
+            <Icon name="home" size={22} color={color} />
           ),
         }}
       />
@@ -62,9 +120,8 @@ const TabNavigator = () => {
         name="Jobs"
         component={Jobs}
         options={{
-          tabBarLabel: 'Jobs',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="briefcase" size={18} color="#fff" />
+          tabBarIcon: ({ color }) => (
+            <Icon name="briefcase" size={20} color={color} />
           ),
         }}
       />
@@ -72,29 +129,26 @@ const TabNavigator = () => {
         name="Mentor"
         component={Mentor}
         options={{
-          tabBarLabel: 'Mentor',
-          tabBarIcon: ({ color, size }) => (
-              <Icon name="users" size={18} color="#fff" />
+          tabBarIcon: ({ color }) => (
+            <Icon name="users" size={20} color={color} />
           ),
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="Profile"
         component={Profile}
         options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="user" size={18} color="#fff" />
+          tabBarIcon: ({ color }) => (
+            <Icon name="user" size={20} color={color} />
           ),
         }}
-      /> */}
+      />
       <Tab.Screen
         name="Chat"
         component={Chat}
         options={{
-          tabBarLabel: 'Chat',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" size={18} color="#fff" />
+          tabBarIcon: ({ color }) => (
+            <Icon name="comments" size={20} color={color} />
           ),
         }}
       />
@@ -102,14 +156,64 @@ const TabNavigator = () => {
   );
 };
 
+const LoadingScreen = () => (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator size="large" color="#007AFF" />
+  </View>
+);
+
 const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [userToken, setUserToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      setUserToken(token);
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+    } finally {
+      // Add a minimum delay to prevent flash of loading screen
+      setTimeout(() => setIsLoading(false), 500);
+    }
+  };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <NavigationContainer>
-      <TabNavigator />
+      <RootStack.Navigator 
+        screenOptions={{ 
+          headerShown: false,
+          animation: 'fade',
+        }}>
+        {userToken ? (
+          <RootStack.Screen name="Main" component={TabNavigator} />
+        ) : (
+          <RootStack.Screen name="Auth" component={AuthStack} />
+        )}
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 };
 
-export default App;
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#111820',
+  },
+  headerButton: {
+    marginRight: 16,
+    padding: 8,
+  },
+});
 
-const styles = StyleSheet.create({});
+export default App;
