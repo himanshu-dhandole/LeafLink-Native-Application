@@ -14,7 +14,8 @@ import {
   Keyboard,
   Dimensions,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 import Home from './Home';
 
 // Dummy Data
@@ -179,6 +180,7 @@ const MessageStatus = ({ status }) => {
 };
 
 const Chat = () => {
+  const navigation = useNavigation()
   const [selectedContact, setSelectedContact] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -365,8 +367,11 @@ const Chat = () => {
         <>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Contacts </Text>
-            <TouchableOpacity style={styles.headerButton}>
-              <Icon name="home" size={24} color="#4CAF50" />
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Session')}
+              style={styles.headerButton}
+            >
+              <Icon name="video-camera" size={24} color="#4CAF50" />
             </TouchableOpacity>
           </View>
           <ContactList />

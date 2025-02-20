@@ -1,3 +1,4 @@
+// App.tsx
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
@@ -15,6 +16,7 @@ import Mentor from './components/Mentor';
 import Chat from './components/Chat';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
+import Session from './components/Session'; // Ensure this import is present
 
 // Type definitions
 type RootStackParamList = {
@@ -61,7 +63,7 @@ const AuthStack = () => {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: '#111820' },
-        animation: 'fade',
+        animation: 'simple_push',
       }}>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />

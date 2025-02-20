@@ -36,7 +36,7 @@ const Signup = ({ navigation }) => {
       // Reset navigation to main app
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Main' }],
+        routes: [{ name: 'Home' }],
       });
     } catch (error) {
       console.error('Error during signup:', error);
